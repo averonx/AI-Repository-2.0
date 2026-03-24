@@ -1,34 +1,46 @@
-%%javascript
-// Wait for the entire HTML document to be loaded before running the script
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Get references to the search input and all tool cards
-    const searchInput = document.getElementById('searchInput');
-    // Select all elements that have the class 'tool-card'
-    const toolCards = document.querySelectorAll('.tool-card');
+const tools = [
+  { name: "ChatGPT", category: "writing", desc: "AI chatbot for everything", link: "https://chat.openai.com" },
+  { name: "GitHub Copilot", category: "coding", desc: "AI coding assistant", link: "https://github.com/features/copilot" },
+  { name: "Midjourney", category: "image", desc: "AI image generator", link: "#" },
+  { name: "Grammarly", category: "writing", desc: "Writing assistant", link: "#" }
+];
 
-    // 2. Add an event listener to the search input
-    // The 'input' event fires whenever the value of an <input>, <select>, or <textarea> element has been changed.
-    searchInput.addEventListener('input', function() {
-        // 3. Get the current search term from the input field
-        // .value gets the current text in the input.
-        // .toLowerCase() converts it to lowercase for case-insensitive searching.
-        const searchTerm = searchInput.value.toLowerCase();
+const container = document.getElementById("tools-container");
+const search = document.getElementById("search");
+const buttons = document.querySelectorAll(".filters button");
 
-        // 4. Iterate over each tool card
-        toolCards.forEach(card => {
-            // Get the text content of the entire card
-            // .textContent gets all the text inside the element and its children.
-            const cardText = card.textContent.toLowerCase();
+let currentCategory = "all";
 
-            // Check if the card's text contains the search term
-            // .includes() returns true if the search term is found, false otherwise.
-            if (cardText.includes(searchTerm)) {
-                // If it includes the search term, display the card
-                card.style.display = ''; // Reset to default display (e.g., 'block' or 'flex')
-            } else {
-                // If it doesn't include the search term, hide the card
-                card.style.display = 'none';
-            }
-        });
-    });
+function render() {
+  container.innerHTML = "";
+
+  const filtered = tools.filter(tool => {
+    const matchCategory = currentCategory === "all" || tool.category === currentCategory;
+    const matchSearch = tool.name.toLowerCase().includes(search.value.toLowerCase());
+
+    return matchCategory && matchSearch;
+  });
+
+  filtered.forEach(tool => {
+    container.innerHTML += `
+      <div class="card">
+        <h3>${tool.name}</h3>
+        <p>${tool.desc}</p>
+        <a href="${tool.link}" target="_blank" class="btn">Visit</a>
+      </div>
+    `;
+  });
+}
+
+search.addEventListener("input", render);
+
+buttons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelector(".active").classList.remove("active");
+    btn.classList.add("active");
+    currentCategory = btn.dataset.category;
+    render();
+  });
 });
+
+render();
